@@ -20,7 +20,7 @@ for country_code, tz_list in pytz.country_timezones.items():
 st.set_page_config(page_title="Strava Dashboard", layout="wide")
 
 st.title("📊 Strava Dashboard")
-st.caption("Quick analysis of your Strava statistics")
+st.caption("🏃Showing your Strava statistics")
 
 # Light CSS polish
 st.markdown(
@@ -250,16 +250,17 @@ else:
         st.markdown(f"[Open on Strava](https://www.strava.com/activities/{act_id})")
 
 # ---- Weekly totals ----
-wk = dff.groupby(["year","week"], as_index=False).agg(
+dff["week_start"] = dff["start_dt"].dt.to_period("W-MON").apply(lambda r: r.start_time.date())
+wk = dff.groupby(["year","week","week_start"], as_index=False).agg(
     distance_km=("distance_km","sum"),
     moving_time_h=("moving_time_h","sum"),
     elev_m=("total_elevation_gain","sum"),
 )
 st.subheader("Weekly Volume")
 fig_wk = px.bar(
-    wk, x="week", y="distance_km",
+    wk, x="week_start", y="distance_km",
     title=f"Distance per week — {year}",
-    labels={"week": "Week", "distance_km": "Distance (km)"},
+    labels={"week_start": "Week start (Mon)", "distance_km": "Distance (km)"},
     color_discrete_sequence=["#E97451"],
 )
 fig_wk.update_layout(margin=dict(l=20, r=20, t=60, b=20))
