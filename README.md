@@ -2,7 +2,7 @@
 
 Simple Streamlit dashboard to explore your Strava activities with quick charts and KPIs. Data is exported from the official Strava API, then visualized locally.
 
-![Dashboard preview](data/preview.png)
+![Dashboard preview](preview.png)
 
 ## Quick Start
 
