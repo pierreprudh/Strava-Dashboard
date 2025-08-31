@@ -4,7 +4,7 @@ Simple Streamlit dashboard to explore your Strava activities with quick charts a
 
 ![Dashboard preview](preview.png)
 
-## Quick Start
+## 🚀 Quick Start
 
 
 
@@ -18,7 +18,7 @@ streamlit run streamlit_app.py
 ```
 
 
-## Setup
+## ⚙️ Setup
 
 ### Create and activate virtual environment
 ```bash
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 Python version: the project targets Python `3.12` (see `.python-version`). Other versions may work but are not tested here.
 
 
-## Strava Setup
+## 🏃‍♂️ Strava Setup
 
 1. Go to [Strava API settings](https://www.strava.com/settings/api) and create an application.
    - Use `localhost` as Authorization Callback Domain during local development.
@@ -70,7 +70,7 @@ Notes:
 - The export script will first look for `.env` next to `export_data.py`, then fall back to the current working directory.
 - Ensure your token scopes include `read,activity:read_all`.
 
-## Data Import
+## 📥 Data Import
 
 ### Export data
 ```bash
@@ -98,7 +98,7 @@ Output examples:
 
 By default, files are written under `data/`. Create the folder if needed.
 
-## Run the Dashboard
+## 📊 Run the Dashboard
 
 Start Streamlit locally:
 ```bash
@@ -107,7 +107,7 @@ streamlit run streamlit_app.py
 
 In the app sidebar, click “Refresh data from Strava” to re-export and reload `data/activities.json` without leaving the app.
 
-## Project Structure
+## 📂 Project Structure
 
 - `export_data.py`: CLI exporter for Strava activities (JSON/CSV)
 - `streamlit_app.py`: Streamlit dashboard (charts, KPIs, filters)
@@ -115,13 +115,13 @@ In the app sidebar, click “Refresh data from Strava” to re-export and reload
 - `.env`: Strava credentials (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REFRESH_TOKEN`)
 - `requirements.txt`: pinned dependencies
 
-## Troubleshooting
+## 🛠️ Troubleshooting
 
 - Unauthorized 401: refresh token invalid or missing scopes. Re-run OAuth and update `.env`.
 - No data in app: ensure `data/activities.json` exists and is valid JSON (or click “Refresh data”).
 - Missing columns error: export as JSON for the app (`.csv` is for external analysis).
 - Rate limits: the exporter paginates; if you hit limits, reduce `--per-page` or try later.
-## Notes
+## 📝 Notes
 
 - Keep `pip`, `setuptools`, and `wheel` up to date for smoother installs.
 - If Streamlit fails to launch, try: `pip install --upgrade streamlit`.
