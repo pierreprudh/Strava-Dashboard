@@ -72,15 +72,6 @@ Notes:
 
 ## Data Import
 
-### Quick test
-Run:
-```bash
-python test.py
-```
-Expected:
-- `/athlete` returns status 200 with your profile
-- `/activities` returns status 200 with a list of activities
-
 ### Export data
 ```bash
 python export_data.py --out data/activities.json --per-page 200
