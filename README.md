@@ -2,6 +2,22 @@
 
 Simple Streamlit dashboard to explore your Strava activities with quick charts and KPIs. Data is exported from the official Strava API, then visualized locally.
 
+![Dashboard preview](data/preview.png)
+
+## Quick Start
+
+
+
+```bash
+git clone https://github.com/yourusername/strava-dashboard.git
+cd strava-dashboard
+python3.12 -m venv .stravadash
+source .stravadash/bin/activate
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+
 ## Setup
 
 ### Create and activate virtual environment
