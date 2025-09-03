@@ -2,7 +2,7 @@
 
 Simple Streamlit dashboard to explore your Strava activities with quick charts and KPIs. Data is exported from the official Strava API, then visualized locally.
 
-![Dashboard preview](preview.png)
+![Dashboard preview](public/streamlit_preview.png)
 
 ## 🚀 Quick Start
 
@@ -74,7 +74,7 @@ Notes:
 
 ### Export data
 ```bash
-python export_data.py --out data/activities.json --per-page 200
+python export_data.py --out ../data/activities.json --per-page 200
 ```
 
 or as CSV:

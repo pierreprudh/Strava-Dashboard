@@ -46,7 +46,7 @@ if not path.exists():
     st.warning(
         "Data file not found at 'data/activities.json'.\n\n"
         "Export your Strava data first, for example:\n"
-        "`python export_data.py --out data/activities.json --per-page 200`"
+        "`python export_data.py --out ../data/activities.json`"
     )
     st.stop()
 
@@ -135,7 +135,7 @@ with st.sidebar:
     st.caption("Data")
     if st.button("Refresh data from Strava"):
         repo_dir = Path(__file__).resolve().parent
-        cmd = [sys.executable, "export_data.py", "--out", "data/activities.json", "--per-page", "200"]
+        cmd = [sys.executable, "export_data.py", "--out", "../data/activities.json", "--per-page", "200"]
 
         with st.spinner("Exporting activities…"):
             try:
