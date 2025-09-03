@@ -1,16 +1,151 @@
 import { ArrowDown, Activity, Gauge, Flame } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+// Simple count-up hook for nice number animations
+function useCountUp(targetValue, { duration = 800 } = {}) {
+  const [value, setValue] = useState(0);
+  const startRef = useRef(null);
+  const fromRef = useRef(0);
+  const targetRef = useRef(targetValue ?? 0);
+
+  useEffect(() => {
+    fromRef.current = value;
+    targetRef.current = Number.isFinite(targetValue) ? targetValue : 0;
+    startRef.current = null;
+
+    let raf;
+    const tick = (ts) => {
+      if (!startRef.current) startRef.current = ts;
+      const p = Math.min(1, (ts - startRef.current) / duration);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      const next = fromRef.current + (targetRef.current - fromRef.current) * eased;
+      setValue(next);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [targetValue, duration]);
+
+  return value;
+}
+
+// Monday-based (ISO) week start in local time
+function startOfISOWeekLocal(d) {
+  const dt = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = dt.getDay(); // 0 Sun .. 6 Sat
+  const diff = (day === 0 ? -6 : 1) - day; // move to Monday
+  dt.setDate(dt.getDate() + diff);
+  dt.setHours(0, 0, 0, 0);
+  return dt;
+}
+
+function addDays(date, days) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function inRange(date, start, end) {
+  return date >= start && date < end;
+}
+
+function computeWeeklyMetrics(activities) {
+  if (!Array.isArray(activities)) return { kmThisWeek: 0, avgHrThisWeek: 0, loadPct: 0 };
+  const now = new Date();
+  const thisWeekStart = startOfISOWeekLocal(now);
+  const nextWeekStart = addDays(thisWeekStart, 7);
+  const prevWeekStart = addDays(thisWeekStart, -7);
+
+  const isRun = (a) => a?.sport_type === "Run" || a?.type === "Run";
+  const toLocalDate = (a) => new Date(a.start_date_local || a.start_date);
+
+  let distThis = 0, hrSumThis = 0, hrCountThis = 0;
+  let distPrev = 0;
+
+  for (const a of activities) {
+    if (!isRun(a)) continue;
+    const d = toLocalDate(a);
+    const distKm = (a.distance || 0) / 1000;
+    if (inRange(d, thisWeekStart, nextWeekStart)) {
+      distThis += distKm;
+      if (a.has_heartrate && Number.isFinite(a.average_heartrate)) {
+        hrSumThis += a.average_heartrate;
+        hrCountThis += 1;
+      }
+    } else if (inRange(d, prevWeekStart, thisWeekStart)) {
+      distPrev += distKm;
+    }
+  }
+
+  const kmThisWeek = distThis;
+  const avgHrThisWeek = hrCountThis ? hrSumThis / hrCountThis : 0;
+  const loadPct = distPrev > 0 ? ((kmThisWeek - distPrev) / distPrev) * 100 : 0;
+  return { kmThisWeek, avgHrThisWeek, loadPct };
+}
 
 export const HeroSection = () => {
+  const [metrics, setMetrics] = useState({ kmThisWeek: 0, avgHrThisWeek: 0, loadPct: 0 });
+  const [revealed, setRevealed] = useState(false);
+  const kpiRef = useRef(null);
+
+  useEffect(() => {
+    // Load Strava-like data from /data/activities.json (place this file under your public folder)
+    fetch("/data/activities.json")
+      .then((r) => r.json())
+      .then((json) => {
+        const { activities } = json || {};
+        setMetrics(computeWeeklyMetrics(activities));
+      })
+      .catch(() => {
+        // keep defaults on error
+      });
+  }, []);
+
+  useEffect(() => {
+    const el = kpiRef.current;
+    if (!el) return;
+
+    let timeoutId;
+    const onAnimEnd = () => setRevealed(true);
+
+    // If element is in view, we'll also reveal after animation end or fallback timeout
+    const io = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry && entry.isIntersecting) {
+        // Fallback in case animationend doesn't fire (reduced motion, class removed, etc.)
+        timeoutId = window.setTimeout(() => setRevealed(true), 1500);
+      }
+    }, { threshold: 0.2 });
+
+    io.observe(el);
+    el.addEventListener('animationend', onAnimEnd, { once: true });
+
+    return () => {
+      io.disconnect();
+      el.removeEventListener('animationend', onAnimEnd);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
+  const kmAnimated = useCountUp(revealed ? metrics.kmThisWeek : 0);
+  const hrAnimated = useCountUp(revealed ? metrics.avgHrThisWeek : 0);
+  const loadAnimated = useCountUp(revealed ? metrics.loadPct : 0);
+
+  const kmText = useMemo(() => `${kmAnimated.toFixed(1)} km`, [kmAnimated]);
+  const hrText = useMemo(() => `${Math.round(hrAnimated)} bpm`, [hrAnimated]);
+  const loadText = useMemo(() => {
+    const v = Math.round(loadAnimated);
+    const sign = v > 0 ? "+" : v < 0 ? "" : "";
+    return `${sign}${v}%`;
+  }, [loadAnimated]);
+
   return (
     <section
       id="hero"
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
     >
       {/* soft gradient background */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 -left-32 h-72 w-72 rounded-full blur-3xl opacity-30" style={{ background: "radial-gradient(40% 40% at 50% 50%, #E97451 0%, transparent 70%)" }} />
-        <div className="absolute top-10 right-0 h-80 w-80 rounded-full blur-3xl opacity-20" style={{ background: "radial-gradient(40% 40% at 50% 50%, #6EE7B7 0%, transparent 70%)" }} />
-      </div>
+
 
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-4xl text-center">
@@ -26,12 +161,7 @@ export const HeroSection = () => {
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 opacity-0 animate-fade-in-delay-3">
-            <a
-              href="#insights"
-              className="inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold shadow-sm border transition-colors bg-card text-foreground border-border card-hover"
-            >
-              View insights
-            </a>
+
             <a
               href="#connect"
               className="cosmic-button"
@@ -42,36 +172,31 @@ export const HeroSection = () => {
         </div>
 
         {/* KPI strip */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto opacity-0 animate-fade-in-delay-4">
+        <div ref={kpiRef} className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto opacity-0 animate-fade-in-delay-4">
           <div className="rounded-xl border bg-card border-border p-5 flex items-center justify-between card-hover">
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground">This week</p>
-              <p className="mt-1 text-2xl font-bold">72.4 km</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{kmText}</p>
             </div>
-            <Activity className="h-6 w-6" />
+            <Activity className="h-6 w-6" style={{ color: "hsl(var(--primary))" }} />
           </div>
           <div className="rounded-xl border bg-card border-border p-5 flex items-center justify-between card-hover">
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg HR</p>
-              <p className="mt-1 text-2xl font-bold">148 bpm</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{hrText}</p>
             </div>
-            <Gauge className="h-6 w-6" />
+            <Gauge className="h-6 w-6" style={{ color: "hsl(var(--primary))" }} />
           </div>
           <div className="rounded-xl border bg-card border-border p-5 flex items-center justify-between card-hover">
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Load</p>
-              <p className="mt-1 text-2xl font-bold">+12%</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{loadText}</p>
             </div>
-            <Flame className="h-6 w-6" />
+            <Flame className="h-6 w-6" style={{ color: "hsl(var(--primary))" }} />
           </div>
         </div>
       </div>
 
-      {/* scroll cue */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce">
-        <span className="text-xs text-muted-foreground mb-2">Scroll</span>
-        <ArrowDown className="h-5 w-5" style={{ color: "#E97451" }} />
-      </div>
     </section>
   );
 };
