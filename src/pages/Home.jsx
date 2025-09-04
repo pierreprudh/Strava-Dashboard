@@ -8,6 +8,7 @@ import { GraphicsSection } from "../components/GraphicsSection";
 import { PersonalBestSection } from "../components/PersonalBestSection";
 import { ContactSection } from "../components/ContactSection";
 import { Footer } from "../components/Footer";
+import { ViewportBottomBlur } from "../components/ViewportBottomBlur";
 
 export const Home = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -24,11 +25,9 @@ export const Home = () => {
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
 
-    {/* Aurora background with orange tone */}
     <AuroraBackground className="!bg-transparent pointer-events-none filter hue-rotate-[210deg] saturate-150" />
 
     <div className="relative z-10">
-        <ThemeToggle />
         <Navbar />
         <main>
           <HeroSection />
@@ -40,6 +39,10 @@ export const Home = () => {
         </main>
         <Footer />
     </div>
+    {/* Fixed bottom-of-viewport blur wipe */}
+    <ViewportBottomBlur blur={14} maxHeight="22vh" distance={520} />
+    {/* Keep theme switch above the blur */}
+    <ThemeToggle />
     </div>
   );
 };

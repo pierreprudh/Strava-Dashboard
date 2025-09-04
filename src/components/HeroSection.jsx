@@ -139,6 +139,16 @@ export const HeroSection = () => {
     return `${sign}${v}%`;
   }, [loadAnimated]);
 
+  const handleFetchData = async () => {
+    try {
+      await fetch("/api/run-export", { method: "POST" });
+    } catch (err) {
+      console.error("Failed to trigger export", err);
+    } finally {
+      window.location.reload();
+    }
+  };
+
   return (
     <section
       id="hero"
@@ -162,12 +172,9 @@ export const HeroSection = () => {
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 opacity-0 animate-fade-in-delay-3">
 
-            <a
-              href="#connect"
-              className="cosmic-button"
-            >
-              Connect Strava
-            </a>
+            <button onClick={handleFetchData} className="cosmic-button">
+              Fetch your data !
+            </button>
           </div>
         </div>
 

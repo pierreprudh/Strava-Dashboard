@@ -72,13 +72,13 @@
     --background: 222 47% 4%;
     --foreground: 213 31% 91%;
 
-    --card: 222 47% 8%;
+    --card: 222 47% 14%;
 
     /* Orange primary for dark theme (slightly lighter for contrast) */
     --primary: 24 90% 55%;
     --primary-foreground: 213 31% 91%;
 
-    --border: 217 33% 20%;
+    --border: 217 33% 28%;
   }
 
   * {
@@ -195,6 +195,106 @@
   to {
     opacity: 1;
     transform: rotate(0deg) scale(1);
+  }
+}
+
+/* GradualBlur utility classes */
+/* Wrapper and overlay animation inspired by a wipe that gradually removes blur */
+@layer components {
+  .gb-wrap {}
+
+  .gb-overlay {
+    filter: blur(var(--gb-blur, 12px));
+    pointer-events: none;
+    /* idle state: no mask (fully blurred overlay) */
+  }
+
+  /* Active animation: apply soft-edged moving mask */
+  .gb-active > .gb-overlay {
+    -webkit-mask-image: linear-gradient(to right, #000 30%, transparent 60%);
+    mask-image: linear-gradient(to right, #000 30%, transparent 60%);
+    -webkit-mask-size: 200% 100%;
+    mask-size: 200% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    animation: gb-wipe var(--gb-duration, 1200ms) ease-out var(--gb-delay, 0ms) forwards;
+  }
+  .gb-active > .gb-overlay.gb-rtl {
+    -webkit-mask-image: linear-gradient(to left, #000 30%, transparent 60%);
+    mask-image: linear-gradient(to left, #000 30%, transparent 60%);
+    animation-name: gb-wipe-rtl;
+  }
+
+  @keyframes gb-wipe {
+    from { -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+    to   { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+  }
+  @keyframes gb-wipe-rtl {
+    from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+    to   { -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gb-overlay { animation: none; -webkit-mask: none; mask: none; }
+  }
+
+  /* Fixed bottom blur overlay that wipes upward with scroll progress */
+  .vb-overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--vb-h, 22vh);
+    pointer-events: none;
+    z-index: 40;
+    opacity: var(--vb-opacity, 1);
+    /* Blur content behind */
+    -webkit-backdrop-filter: blur(var(--vb-blur, 14px));
+    backdrop-filter: blur(var(--vb-blur, 14px));
+    /* Optional soft tint to make the effect read in both themes */
+    background: linear-gradient(to top, hsl(var(--background) / 0.28), transparent);
+    /* Vertical mask that moves based on --vb-progress (0..1) */
+    -webkit-mask-image: linear-gradient(to top, #000 45%, transparent 80%);
+    mask-image: linear-gradient(to top, #000 45%, transparent 80%);
+    -webkit-mask-size: 100% 200%;
+    mask-size: 100% 200%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: 0 calc(100% - (var(--vb-progress, 0) * 100%));
+    mask-position: 0 calc(100% - (var(--vb-progress, 0) * 100%));
+    transition: backdrop-filter 120ms linear;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vb-overlay { transition: none; }
+  }
+}
+
+/* Scroll-triggered drop-in animation */
+@layer components {
+  .sd-content {
+    opacity: 0;
+    transform: translateY(var(--sd-from-y, 24px)) scale(0.98);
+    will-change: transform, opacity;
+  }
+  .sd-active > .sd-content {
+    /* Ensure visibility persists even if animation is interrupted */
+    opacity: 1;
+    animation: sd-drop-in var(--sd-duration, 700ms) cubic-bezier(0.22, 1, 0.36, 1) var(--sd-delay, 0ms) both;
+  }
+  @keyframes sd-drop-in {
+    0% {
+      opacity: 0;
+      transform: translateY(var(--sd-from-y, 24px)) scale(0.98);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(calc(var(--sd-from-y, 24px) * -0.25)) scale(1.0);
+    }
+    80% { transform: translateY(6px); }
+    100% { transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sd-content { opacity: 1; transform: none; animation: none !important; }
   }
 }
 
