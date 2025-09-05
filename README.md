@@ -22,7 +22,7 @@ streamlit run streamlit_app.py
 
 ### Create and activate virtual environment
 ```bash
-python3.12 -m venv .stravadash 
+python3.12 -m venv .stravadash
 source .stravadash/bin/activate  # on macOS/Linux
 ```
 On Windows: `.stravadash\Scripts\activate`
@@ -74,22 +74,22 @@ Notes:
 
 ### Export data
 ```bash
-python export_data.py --out ../data/activities.json --per-page 200
+python python/export_data.py --out ../data/activities.json --per-page 200
 ```
 
 or as CSV:
 ```bash
-python export_data.py --out data/activities.csv --per-page 200
+python python/export_data.py --out data/activities.csv --per-page 200
 ```
 
 You can filter by dates:
 ```bash
-python export_data.py --out data/activities.json --after 2025-01-01 --before 2025-12-31
+python python/export_data.py --out data/activities.json --after 2025-01-01 --before 2025-12-31
 ```
 
 Show all options:
 ```bash
-python export_data.py -h
+python python/export_data.py -h
 ```
 
 Output examples:
