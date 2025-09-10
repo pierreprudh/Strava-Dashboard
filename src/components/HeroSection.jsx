@@ -49,15 +49,23 @@ function inRange(date, start, end) {
   return date >= start && date < end;
 }
 
-function computeWeeklyMetrics(activities) {
+function computeWeeklyMetrics(activities, opts = {}) {
   if (!Array.isArray(activities)) return { kmThisWeek: 0, avgHrThisWeek: 0, loadPct: 0 };
-  const now = new Date();
+  const now = opts.anchorDate ? new Date(opts.anchorDate) : new Date();
   const thisWeekStart = startOfISOWeekLocal(now);
   const nextWeekStart = addDays(thisWeekStart, 7);
   const prevWeekStart = addDays(thisWeekStart, -7);
 
   const isRun = (a) => a?.sport_type === "Run" || a?.type === "Run";
-  const toLocalDate = (a) => new Date(a.start_date_local || a.start_date);
+  const toLocalDate = (a) => {
+    const raw = a?.start_date_local ?? a?.start_date;
+    if (!raw) return new Date(NaN);
+    if (typeof raw === "string" && a?.start_date_local && raw.endsWith("Z")) {
+      // Treat start_date_local as true local by stripping trailing Z
+      return new Date(raw.slice(0, -1));
+    }
+    return new Date(raw);
+  };
 
   let distThis = 0, hrSumThis = 0, hrCountThis = 0;
   let distPrev = 0;
@@ -65,7 +73,12 @@ function computeWeeklyMetrics(activities) {
   for (const a of activities) {
     if (!isRun(a)) continue;
     const d = toLocalDate(a);
-    const distKm = (a.distance || 0) / 1000;
+    const distKm = Number.isFinite(a?.distance_km)
+      ? Number(a.distance_km)
+      : (() => {
+          const raw = Number(a?.distance ?? 0);
+          return raw >= 500 ? raw / 1000 : raw; // meters → km, else assume already km
+        })();
     if (inRange(d, thisWeekStart, nextWeekStart)) {
       distThis += distKm;
       if (a.has_heartrate && Number.isFinite(a.average_heartrate)) {
@@ -90,14 +103,18 @@ export const HeroSection = () => {
 
   useEffect(() => {
     // Load Strava-like data from /data/activities.json (place this file under your public folder)
-    fetch("/data/activities.json")
-      .then((r) => r.json())
-      .then((json) => {
-        const { activities } = json || {};
-        setMetrics(computeWeeklyMetrics(activities));
+    fetch("../data/activities.json")
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
       })
-      .catch(() => {
-        // keep defaults on error
+      .then((json) => {
+        const activities = Array.isArray(json) ? json : json?.activities ?? [];
+        const anchorDate = Array.isArray(json) ? undefined : json?.exported_at;
+        setMetrics(computeWeeklyMetrics(activities, { anchorDate }));
+      })
+      .catch((err) => {
+        console.error("Failed to load activities.json", err);
       });
   }, []);
 
@@ -135,8 +152,7 @@ export const HeroSection = () => {
   const hrText = useMemo(() => `${Math.round(hrAnimated)} bpm`, [hrAnimated]);
   const loadText = useMemo(() => {
     const v = Math.round(loadAnimated);
-    const sign = v > 0 ? "+" : v < 0 ? "" : "";
-    return `${sign}${v}%`;
+    return `${v > 0 ? "+" : ""}${v}%`;
   }, [loadAnimated]);
 
   const handleFetchData = async () => {

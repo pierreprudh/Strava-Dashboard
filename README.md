@@ -74,7 +74,7 @@ Notes:
 
 ### Export data
 ```bash
-python python/export_data.py --out ../data/activities.json --per-page 200
+python python/export_data.py --out ./data/activities.json --per-page 200
 ```
 
 or as CSV:
