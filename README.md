@@ -1,4 +1,63 @@
-# Personal Strava Dashboard
+<div align="center">
+  <div>
+    <img src="https://img.shields.io/badge/-React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+    <img src="https://img.shields.io/badge/-TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+    <img src="https://img.shields.io/badge/-Lucide Icons-FD4D4D?style=for-the-badge&logo=lucide" alt="Lucide Icons" />
+    <img src="https://img.shields.io/badge/-Radix UI-9D4EDD?style=for-the-badge&logo=data:image/svg+xml;base64..." alt="Radix UI" />
+  </div>
+</div>
+
+# Personal Strava Dashboard - React
+
+Modern, responsive Strava dashboard built with React, Vite and Tailwind CSS. It shows weekly KPIs, your latest run. Data is read from a JSON file you export from Strava.
+
+## Features
+- Weekly KPIs: mileage, avg HR, training load change
+- Last run: distance, moving time, pace, HR, elevation, energy
+- Personal bests: projected times for 1k, 5k, 10k, Half-marathon, 30k, marathon
+- Dark mode, smooth animations, responsive layout
+
+
+## Quick Start (React)
+
+```bash
+npm install
+npm run dev
+```
+Open the local URL printed by Vite. To see metrics, add a `public/data/activities.json` file (see “Get your data”).
+## Get your data (Strava export)
+Use the Python exporter in `python/export_data.py` to pull your activities from the official Strava API.
+1) Create Strava API credentials: https://www.strava.com/settings/api (scopes: `read,activity:read_all`)
+2) Put credentials in `python/.env`:
+```
+STRAVA_CLIENT_ID=...
+STRAVA_CLIENT_SECRET=...
+STRAVA_REFRESH_TOKEN=...
+```
+3) Export activities to JSON:
+```bash
+python python/export_data.py --out data/activities.json
+```
+4) Make the JSON available to the app by copying it to `public/data/activities.json`.
+The app fetches `/data/activities.json`. Supported shapes:
+- Object: `{ "exported_at": ISO-8601, "count": N, "activities": [ ... ] }`
+- Array: `[ ... ]` also works (no `exported_at`)
+## Scripts
+- `npm run dev`: start Vite dev server
+- `npm run build`: production build to `dist/`
+- `npm run preview`: preview the prod build
+- `npm run lint`: run ESLint
+Note: The “Fetch your data!” button calls
+
+
+
+
+
+
+
+
+# Personal Strava Dashboard - Python :snake:
 
 Simple Streamlit dashboard to explore your Strava activities with quick charts and KPIs. Data is exported from the official Strava API, then visualized locally.
 
