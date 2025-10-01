@@ -10,6 +10,10 @@
 
 # Personal Strava Dashboard - React
 
+
+![React preview](public/Strava_interface.png)
+
+
 Modern, responsive Strava dashboard built with React, Vite and Tailwind CSS. It shows weekly KPIs, your latest run. Data is read from a JSON file you export from Strava.
 
 ## Features

@@ -1,4 +1,4 @@
-import { ArrowDown, Activity, Gauge, Flame } from "lucide-react";
+import { ArrowDown, Activity, Gauge, Flame, ListChecks } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 // Simple count-up hook for nice number animations
@@ -55,6 +55,7 @@ function computeWeeklyMetrics(activities, opts = {}) {
   const thisWeekStart = startOfISOWeekLocal(now);
   const nextWeekStart = addDays(thisWeekStart, 7);
   const prevWeekStart = addDays(thisWeekStart, -7);
+  const totalCount = Array.isArray(activities) ? activities.length : 0;
 
   const isRun = (a) => a?.sport_type === "Run" || a?.type === "Run";
   const toLocalDate = (a) => {
@@ -67,7 +68,7 @@ function computeWeeklyMetrics(activities, opts = {}) {
     return new Date(raw);
   };
 
-  let distThis = 0, hrSumThis = 0, hrCountThis = 0;
+  let distThis = 0, hrSumThis = 0, hrCountThis = 0, countThis = 0;
   let distPrev = 0;
 
   for (const a of activities) {
@@ -81,6 +82,7 @@ function computeWeeklyMetrics(activities, opts = {}) {
         })();
     if (inRange(d, thisWeekStart, nextWeekStart)) {
       distThis += distKm;
+      countThis += 1;
       if (a.has_heartrate && Number.isFinite(a.average_heartrate)) {
         hrSumThis += a.average_heartrate;
         hrCountThis += 1;
@@ -93,11 +95,11 @@ function computeWeeklyMetrics(activities, opts = {}) {
   const kmThisWeek = distThis;
   const avgHrThisWeek = hrCountThis ? hrSumThis / hrCountThis : 0;
   const loadPct = distPrev > 0 ? ((kmThisWeek - distPrev) / distPrev) * 100 : 0;
-  return { kmThisWeek, avgHrThisWeek, loadPct };
+  return { kmThisWeek, avgHrThisWeek, loadPct, activityCount: countThis, activityCountAllTime: totalCount };
 }
 
 export const HeroSection = () => {
-  const [metrics, setMetrics] = useState({ kmThisWeek: 0, avgHrThisWeek: 0, loadPct: 0 });
+  const [metrics, setMetrics] = useState({ kmThisWeek: 0, avgHrThisWeek: 0, loadPct: 0, activityCount: 0, activityCountAllTime: 0 });
   const [revealed, setRevealed] = useState(false);
   const kpiRef = useRef(null);
 
@@ -147,6 +149,8 @@ export const HeroSection = () => {
   const kmAnimated = useCountUp(revealed ? metrics.kmThisWeek : 0);
   const hrAnimated = useCountUp(revealed ? metrics.avgHrThisWeek : 0);
   const loadAnimated = useCountUp(revealed ? metrics.loadPct : 0);
+  const countAnimated = useCountUp(revealed ? metrics.activityCountAllTime : 0);
+  const countText = useMemo(() => `${Math.round(countAnimated)}`, [countAnimated]);
 
   const kmText = useMemo(() => `${kmAnimated.toFixed(1)} km`, [kmAnimated]);
   const hrText = useMemo(() => `${Math.round(hrAnimated)} bpm`, [hrAnimated]);
@@ -157,18 +161,22 @@ export const HeroSection = () => {
 
   const handleFetchData = async () => {
     try {
-      await fetch("/api/run-export", { method: "POST" });
+      const res = await fetch("/api/run-export", { method: "POST" });
+      if (!res.ok) {
+        const message = await res.text();
+        throw new Error(`Export failed: ${res.status} ${message}`);
+      }
+      window.location.reload();
     } catch (err) {
       console.error("Failed to trigger export", err);
-    } finally {
-      window.location.reload();
+      window.alert("Unable to fetch latest Strava data. Check the terminal for details.");
     }
   };
 
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden hero-section"
     >
       {/* soft gradient background */}
 
@@ -195,7 +203,7 @@ export const HeroSection = () => {
         </div>
 
         {/* KPI strip */}
-        <div ref={kpiRef} className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto opacity-0 animate-fade-in-delay-4">
+        <div ref={kpiRef} className="mt-12 grid grid-cols-1 sm:grid-cols-4 gap-4 max-w-4xl mx-auto opacity-0 animate-fade-in-delay-4">
           <div className="rounded-xl border bg-card border-border p-5 flex items-center justify-between card-hover">
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground">This week</p>
@@ -216,6 +224,13 @@ export const HeroSection = () => {
               <p className="mt-1 text-2xl font-bold tabular-nums">{loadText}</p>
             </div>
             <Flame className="h-6 w-6" style={{ color: "hsl(var(--primary))" }} />
+          </div>
+          <div className="rounded-xl border bg-card border-border p-5 flex items-center justify-between card-hover">
+            <div>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">All time activities</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{countText}</p>
+            </div>
+            <ListChecks className="h-6 w-6" style={{ color: "hsl(var(--primary))" }} />
           </div>
         </div>
       </div>
