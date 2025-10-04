@@ -10,14 +10,11 @@ const navItems = [
     name: "Last Run", href: "#lastrun"
   },
   {
-    name: "Best", href: "#best"
+    name: "Personal Best", href: "#best"
   },
   {
-    name: "Graphics", href: "#graphics"
-  },
-  {
-    name: "Contact", href: "#contact"
-  },
+    name: "Highlight", href: "#highlight"
+  }
 ]
 
 export const Navbar = () => {

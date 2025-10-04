@@ -1,4 +1,4 @@
-import { ArrowDown, Activity, Gauge, Flame, ListChecks } from "lucide-react";
+import { Activity, Gauge, Flame, ListChecks } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 // Simple count-up hook for nice number animations

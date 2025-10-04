@@ -164,7 +164,8 @@
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(180deg, rgba(10, 12, 18, 0.68) 0%, rgba(10, 12, 18, 0.45) 45%, rgba(10, 12, 18, 0.75) 100%),
+
+
       url("/background.png");
     background-size: cover;
     background-position: center;
@@ -175,6 +176,104 @@
   .hero-section > * {
     position: relative;
     z-index: 1;
+  }
+
+  .horizon-section {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    color: #f8fafc;
+    --horizon-sky-top: rgba(3, 12, 23, 0.97);
+    --horizon-sky-mid: rgba(12, 32, 48, 0.92);
+    --horizon-sky-low: rgba(42, 94, 114, 0.9);
+    --horizon-ground: rgba(193, 103, 50, 0.92);
+    --horizon-tint: rgba(56, 189, 248, 0.26);
+    --horizon-flare: rgba(253, 224, 71, 0.24);
+    --horizon-fog: rgba(7, 11, 19, 0.55);
+    --horizon-noise: rgba(15, 23, 42, 0.35);
+    --horizon-image-pos: 70%;
+  }
+
+  .horizon-section::before {
+    content: "";
+    position: absolute;
+    inset: -14% -8% -18%;
+    z-index: 0;
+    background-image:
+      linear-gradient(
+        to bottom,
+        var(--horizon-sky-top) 0%,
+        var(--horizon-sky-mid) 40%,
+        var(--horizon-sky-low) 68%,
+        var(--horizon-ground) 100%
+      ),
+      url("/gradient-background.png");
+    background-size: 100% 125%, cover;
+    background-position: center 0%, center var(--horizon-image-pos, 70%);
+    background-repeat: no-repeat;
+    filter: saturate(1.08);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.92) 12%, rgba(0, 0, 0, 0.8) 55%, rgba(0, 0, 0, 0.35) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.92) 12%, rgba(0, 0, 0, 0.8) 55%, rgba(0, 0, 0, 0.35) 100%);
+  }
+
+  .horizon-section::after {
+    content: "";
+    position: absolute;
+    inset: -8% -12% -12%;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(150% 90% at 52% 32%, var(--horizon-flare) 0%, transparent 60%),
+      radial-gradient(120% 75% at 50% 4%, var(--horizon-tint) 0%, transparent 62%),
+      radial-gradient(160% 100% at 50% 92%, rgba(255, 255, 255, 0.15) 0%, transparent 68%),
+      linear-gradient(to bottom, transparent 58%, var(--horizon-fog) 100%),
+      repeating-linear-gradient(120deg, transparent 0%, transparent 10%, var(--horizon-noise) 11%, transparent 12%);
+    background-size: 170% 140%, 140% 120%, 160% 160%, 100% 100%, 280% 280%;
+    background-position: 50% 32%, 48% 12%, 50% 86%, center, 60% 50%;
+    background-repeat: no-repeat;
+    mix-blend-mode: screen;
+    opacity: 0.82;
+  }
+
+  .horizon-section > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .horizon-section--lastrun {
+    --horizon-sky-top: rgba(4, 16, 30, 0.98);
+    --horizon-sky-mid: rgba(10, 44, 70, 0.94);
+    --horizon-sky-low: rgba(40, 96, 118, 0.88);
+    --horizon-ground: rgba(204, 108, 54, 0.92);
+    --horizon-tint: rgba(56, 189, 248, 0.32);
+    --horizon-flare: rgba(253, 224, 71, 0.28);
+    --horizon-fog: rgba(6, 14, 26, 0.6);
+    --horizon-noise: rgba(10, 37, 64, 0.32);
+    --horizon-image-pos: 72%;
+  }
+
+  .horizon-section--personal {
+    --horizon-sky-top: rgba(5, 14, 26, 0.97);
+    --horizon-sky-mid: rgba(20, 46, 68, 0.92);
+    --horizon-sky-low: rgba(58, 102, 123, 0.86);
+    --horizon-ground: rgba(218, 126, 60, 0.9);
+    --horizon-tint: rgba(251, 191, 36, 0.32);
+    --horizon-flare: rgba(236, 72, 153, 0.2);
+    --horizon-fog: rgba(10, 18, 28, 0.58);
+    --horizon-noise: rgba(79, 32, 17, 0.28);
+    --horizon-image-pos: 70%;
+  }
+
+  .horizon-section--highlights {
+    --horizon-sky-top: rgba(3, 10, 23, 0.98);
+    --horizon-sky-mid: rgba(16, 35, 58, 0.92);
+    --horizon-sky-low: rgba(46, 92, 118, 0.88);
+    --horizon-ground: rgba(188, 98, 50, 0.9);
+    --horizon-tint: rgba(129, 140, 248, 0.28);
+    --horizon-flare: rgba(56, 189, 248, 0.24);
+    --horizon-fog: rgba(6, 12, 24, 0.58);
+    --horizon-noise: rgba(27, 32, 60, 0.3);
+    --horizon-image-pos: 74%;
   }
 }
 

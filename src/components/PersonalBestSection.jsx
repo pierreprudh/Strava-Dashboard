@@ -91,7 +91,7 @@ export const PersonalBestSection = () => {
   }, [prs]);
 
   return (
-    <section id="best" className="py-24 px-4 relative">
+    <section id="best" className="py-24 px-4 horizon-section horizon-section--personal">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-10 text-center">
           Personal <span className="text-primary">Records</span>

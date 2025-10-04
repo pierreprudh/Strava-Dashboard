@@ -72,7 +72,7 @@ export const LastRunSection = () => {
   }, [lastRun]);
 
   return (
-    <section id="lastrun" className="py-24 px-4 relative">
+    <section id="lastrun" className="py-24 px-4 horizon-section horizon-section--lastrun">
       <div className="container">
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-10 text-center">
           Last <span className="text-primary">Run</span>
@@ -88,8 +88,8 @@ export const LastRunSection = () => {
         {cards && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
             {/* Summary */}
-            <ScrollDropIn className="lg:col-span-3" delay={0}>
-            <div className="p-8 rounded-3xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl card-hover">
+
+            <div className="p-8 rounded-3xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl card-hover sm:col-span-2 lg:col-span-3">
               <div className="flex items-center gap-3 mb-4">
                 <Activity className="h-5 w-5 text-primary" />
                 <h3 className="font-semibold">Summary</h3>
@@ -112,7 +112,7 @@ export const LastRunSection = () => {
                 {cards.name} • {new Date(cards.startDate).toLocaleString()}
               </div>
             </div>
-            </ScrollDropIn>
+
 
             {/* Heart rate */}
             {(cards.hrAvg || cards.hrMax) && (
