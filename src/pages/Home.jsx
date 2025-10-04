@@ -3,6 +3,7 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import { AuroraBackground } from "../components/AuroraBackground";
 import { Navbar } from "../components/Navbar";
 import { HeroSection } from "../components/HeroSection";
+import ScrollAnimation from "../components/ScrollAnimation";
 import { LastRunSection } from "../components/LastRunSection";
 import { GraphicsSection } from "../components/GraphicsSection";
 import { PersonalBestSection } from "../components/PersonalBestSection";
@@ -65,6 +66,9 @@ export const Home = () => {
         <main>
           <section id="hero" ref={heroRef} className="scroll-mt-24">
             <HeroSection />
+          </section>
+          <section className="scroll-mt-24">
+            <ScrollAnimation />
           </section>
           <section id="last" ref={lastRunRef} className="scroll-mt-24">
             <LastRunSection />
